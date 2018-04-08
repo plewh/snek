@@ -44,7 +44,7 @@ void snk_init(snk_t* snk);
 void snk_addLength(snk_t* snk);
 void snk_shuffBody(snk_t* snk);
 void snk_handleInput(snk_t* snk, char* running, double* maxTicks);
-void doFrame(snk_t* snk);
+void doFrame(WINDOW* win, snk_t* snk);
 
 int main() {
 
@@ -77,6 +77,8 @@ int main() {
     // calc field offset
     int offX = (winX - WIN_X) / 2;
     int offY = (winY - WIN_Y) / 2;
+
+    WINDOW* field = newwin(WIN_Y, WIN_X, offY, offX);
 
     // start main loop
     while (running) {
@@ -116,7 +118,7 @@ int main() {
         }
 
         // draw frame 
-        doFrame(&snk);
+        doFrame(field, &snk);
 
     }
 
@@ -216,30 +218,33 @@ void snk_handleInput(snk_t* snk, char* running, double* maxTicks) {
 
 }
 
-void doFrame(snk_t* snk) {
+void doFrame(WINDOW* win, snk_t* snk) {
 
     // set delay period (in nano seconds)
     struct timespec tSpec = {0, 1000000};
 
     // clear current buffer
-    clear();
+    //clear();
+    wclear(win);
+    box(win, 0, 0);
 
     // draw snk body to buffer
     if (snk->length > -1) {
 
         for (int j = 0; j < snk->length; ++j) {
             
-            mvaddch(snk->body[j].y, snk->body[j].x, '0');
+            //mvaddch(snk->body[j].y, snk->body[j].x, '0');
+            mvwaddch(win, snk->body[j].y, snk->body[j].x, '0');
 
         }
 
     }
 
     // draw snk head to buffer
-    mvaddch(snk->headPos.y, snk->headPos.x, SNK_HEAD);;
+    mvwaddch(win, snk->headPos.y, snk->headPos.x, SNK_HEAD);
 
     // put buffer to screen
-    refresh();
+    wrefresh(win);
 
     // make puter go slow
     nanosleep(&tSpec, NULL);
