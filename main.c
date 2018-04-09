@@ -1,6 +1,8 @@
 #include <ncurses.h>
 #include <time.h>
 #include <unistd.h>
+#include <time.h>
+#include <stdlib.h>
 
 #define true 1
 #define false 0
@@ -9,11 +11,18 @@
 #define SNK_BODY 0
 #define SNK_MAX_LEN 100
 
+#define FRUIT_CHAR 'F'
+
 #define TICK_RATE 1.0
 #define MAX_TICKS 64.0
 
 #define WIN_X 80
 #define WIN_Y 24
+
+// TODO:
+// - clean up collision in the main loop
+// - remove magic numbers
+// - prevent fruit from spawning within snake
 
 typedef enum {
 
@@ -44,7 +53,8 @@ void snk_init(snk_t* snk);
 void snk_addLength(snk_t* snk);
 void snk_shuffBody(snk_t* snk);
 void snk_handleInput(snk_t* snk, char* running, double* maxTicks);
-void doFrame(WINDOW* win, snk_t* snk);
+void doFrame(WINDOW* win, snk_t* snk, vect_t* fruit);
+char isEqual(vect_t* a, vect_t* b);
 
 int main() {
 
@@ -55,11 +65,15 @@ int main() {
     curs_set(false);
     nodelay(stdscr, 1);
 
+    srand(time(NULL));
+
     double currTicks = 0.0;
     double maxTicks = MAX_TICKS;
 
     snk_t snk;
     snk_init(&snk);
+
+    vect_t fruit = {rand() % 80, rand() % 24};
 
     char running = true;
 
@@ -117,8 +131,36 @@ int main() {
 
         }
 
+        // check for collisions
+        char cFlag = false;
+
+        // has head collided?
+        if (isEqual(&snk.headPos, &fruit)) {
+
+            cFlag = true;
+
+        }
+
+        // has body collided?
+        for (int j = 0; j < snk.length; ++j) {
+            if (isEqual(&snk.body[j], &fruit)) {
+
+                cFlag = true;
+
+            }
+        }
+
+        if (cFlag) {
+
+            fruit.x = 1 + rand() % 78;
+            fruit.y = 1 + rand() % 22;
+
+            ++snk.length;
+
+        }
+
         // draw frame 
-        doFrame(field, &snk);
+        doFrame(field, &snk, &fruit);
 
     }
 
@@ -218,15 +260,17 @@ void snk_handleInput(snk_t* snk, char* running, double* maxTicks) {
 
 }
 
-void doFrame(WINDOW* win, snk_t* snk) {
+void doFrame(WINDOW* win, snk_t* snk, vect_t* fruit) {
 
     // set delay period (in nano seconds)
     struct timespec tSpec = {0, 1000000};
 
     // clear current buffer
-    //clear();
     wclear(win);
     box(win, 0, 0);
+
+    // draw fruit to buffer
+    mvwaddch(win, fruit->y, fruit->x, FRUIT_CHAR);
 
     // draw snk body to buffer
     if (snk->length > -1) {
@@ -243,10 +287,24 @@ void doFrame(WINDOW* win, snk_t* snk) {
     // draw snk head to buffer
     mvwaddch(win, snk->headPos.y, snk->headPos.x, SNK_HEAD);
 
-    // put buffer to screen
+   
+
+    // put buffer on screen
     wrefresh(win);
 
     // make puter go slow
     nanosleep(&tSpec, NULL);
+
+}
+
+char isEqual(vect_t* a, vect_t* b) {
+
+    if (a->x == b->x && a->y == b->y) {
+
+        return true;
+
+    }
+
+    return false;
 
 }
