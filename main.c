@@ -128,35 +128,15 @@ int main() {
 
         }
 
-        // check for collisions
-        char cFlag = false;
-
-        // has head collided?
-        if (isEqual(&snk.headPos, &fruit)) {
-
-            cFlag = true;
-
-        }
-
-        // has body collided?
-        for (int j = 0; j < snk.length; ++j) {
-            if (isEqual(&snk.body[j], &fruit)) {
-
-                cFlag = true;
-
-            }
-        }
-
-        if (cFlag) {
+		if (hasCollided(&snk, &fruit)) {
 
 			placeFruit(&snk, &fruit);
             ++snk.length;
 
-        }
+		}
 
         // draw frame 
         doFrame(field, &snk, &fruit);
-
     }
 
     endwin();
@@ -315,7 +295,7 @@ void placeFruit(snk_t* snk, vect_t* fruit) {
 		y = 1 + rand() % 22;
 
 	// does coord collide with snek?
-	} while (hasCollided(snk, fruit));
+	} while (!hasCollided(snk, fruit));
 
 	fruit->x = x;
 	fruit->y = y;
