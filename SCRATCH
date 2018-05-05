@@ -1,0 +1,12 @@
+
+//TODO:
+
+	- add fruit
+		- prevent fruit from spawning within snake
+	- add hud
+	- add title screen
+	- prevent snake from reversing direction
+	- collision detection
+		- clean up collision in the main loop
+	- option to wrap screen
+	- remove magic numbers

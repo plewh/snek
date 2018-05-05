@@ -19,11 +19,6 @@
 #define WIN_X 80
 #define WIN_Y 24
 
-// TODO:
-// - clean up collision in the main loop
-// - remove magic numbers
-// - prevent fruit from spawning within snake
-
 typedef enum {
 
     UP,
@@ -55,6 +50,8 @@ void snk_shuffBody(snk_t* snk);
 void snk_handleInput(snk_t* snk, char* running, double* maxTicks);
 void doFrame(WINDOW* win, snk_t* snk, vect_t* fruit);
 char isEqual(vect_t* a, vect_t* b);
+void placeFruit(snk_t* snk, vect_t* fruit);
+int  hasCollided(snk_t* snk, vect_t* vect);
 
 int main() {
 
@@ -152,9 +149,7 @@ int main() {
 
         if (cFlag) {
 
-            fruit.x = 1 + rand() % 78;
-            fruit.y = 1 + rand() % 22;
-
+			placeFruit(&snk, &fruit);
             ++snk.length;
 
         }
@@ -266,7 +261,7 @@ void doFrame(WINDOW* win, snk_t* snk, vect_t* fruit) {
     struct timespec tSpec = {0, 1000000};
 
     // clear current buffer
-    wclear(win);
+    werase(win);
     box(win, 0, 0);
 
     // draw fruit to buffer
@@ -306,5 +301,48 @@ char isEqual(vect_t* a, vect_t* b) {
     }
 
     return false;
+
+}
+
+void placeFruit(snk_t* snk, vect_t* fruit) {
+
+	int x, y;
+
+	// roll a random coord
+	do {
+
+		x = 1 + rand() % 78;
+		y = 1 + rand() % 22;
+
+	// does coord collide with snek?
+	} while (hasCollided(snk, fruit));
+
+	fruit->x = x;
+	fruit->y = y;
+
+}
+
+int hasCollided(snk_t* snk, vect_t* vect) {
+
+	// check for collisions
+	char cFlag = false;
+
+	// has head collided?
+	if (isEqual(&snk->headPos, vect)) {
+
+		cFlag = true;
+
+	}
+
+	// has body collided?
+	for (int j = 0; j < snk->length; ++j) {
+		if (isEqual(&snk->body[j], vect)) {
+
+			cFlag = true;
+
+		}
+	}
+
+	return cFlag;
 
 }
