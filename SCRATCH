@@ -1,12 +1,20 @@
-
 //TODO:
+
+	- add hud
+	- add title screen
+		- loop back to title screen on death
+	- prevent snake from reversing direction
+	- option to wrap screen
+	- remove magic numbers
+	- implement config file
+	- death sequence
+		- game ends to sudden
+
+
+// DONE:
 
 	- add fruit
 		- prevent fruit from spawning within snake
-	- add hud
-	- add title screen
-	- prevent snake from reversing direction
 	- collision detection
+		- snake collide with self
 		- clean up collision in the main loop
-	- option to wrap screen
-	- remove magic numbers

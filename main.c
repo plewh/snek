@@ -52,6 +52,7 @@ void doFrame(WINDOW* win, snk_t* snk, vect_t* fruit);
 char isEqual(vect_t* a, vect_t* b);
 void placeFruit(snk_t* snk, vect_t* fruit);
 int  hasCollided(snk_t* snk, vect_t* vect);
+int  doCollisions(snk_t* snk, vect_t* fruit);
 
 int main() {
 
@@ -70,7 +71,8 @@ int main() {
     snk_t snk;
     snk_init(&snk);
 
-    vect_t fruit = {rand() % 80, rand() % 24};
+	// initial random fruit placement
+    vect_t fruit = { 1 + (rand() % (WIN_X - 1)), 1 + (rand() % (WIN_Y - 1))};
 
     char running = true;
 
@@ -128,15 +130,13 @@ int main() {
 
         }
 
-		if (hasCollided(&snk, &fruit)) {
-
-			placeFruit(&snk, &fruit);
-            ++snk.length;
-
+		if (doCollisions(&snk, &fruit)) {
+			running = false;
+			continue;
 		}
 
-        // draw frame 
         doFrame(field, &snk, &fruit);
+
     }
 
     endwin();
@@ -304,7 +304,6 @@ void placeFruit(snk_t* snk, vect_t* fruit) {
 
 int hasCollided(snk_t* snk, vect_t* vect) {
 
-	// check for collisions
 	char cFlag = false;
 
 	// has head collided?
@@ -325,4 +324,39 @@ int hasCollided(snk_t* snk, vect_t* vect) {
 
 	return cFlag;
 
+}
+
+int doCollisions(snk_t* snk, vect_t* fruit) {
+
+	// Check if fruit has been eaten
+	if (hasCollided(snk, fruit)) {
+
+		placeFruit(snk, fruit);
+		snk_addLength(snk);
+
+	}
+
+	// Check if snek has hit the field edge
+	if (snk->headPos.x < 1 || snk->headPos.x > (WIN_X - 2)) {
+
+		return true;
+
+	}
+
+	if (snk->headPos.y < 1 || snk->headPos.y > (WIN_Y - 2)) {
+
+		return true;
+
+	}
+
+	// has snek eaten itself?
+	for (int j = 0; j < snk->length; ++j) {
+		if (isEqual(&snk->body[j], &snk->headPos)) {
+
+			return true;
+
+		}
+	}
+
+	return false;
 }
