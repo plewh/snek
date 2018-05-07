@@ -3,12 +3,12 @@
 	- add hud
 	- add title screen
 		- loop back to title screen on death
-	- prevent snake from reversing direction
 	- option to wrap screen
-	- remove magic numbers
 	- implement config file
 	- death sequence
 		- game ends to sudden
+	- have snake head point in the direction of movement
+	- change hardcoded snake body to defined value in snak.h
 
 
 // DONE:
@@ -18,3 +18,5 @@
 	- collision detection
 		- snake collide with self
 		- clean up collision in the main loop
+	- prevent snake from reversing direction
+	- remove magic numbers

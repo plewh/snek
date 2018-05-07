@@ -1,13 +1,16 @@
 #include "snek.h"
 #include <stdlib.h>
 
+#define SNK_DEF_XPOS 10
+#define SNK_DEF_YPOS 10
+
 static void snk_shuffBody(snk_t* snk);
 
 snk_t* snk_init() {
 
 	snk_t* snk = malloc(sizeof(snk_t));
-    snk->headPos.x = 10;
-    snk->headPos.y = 10;
+    snk->headPos.x = SNK_DEF_XPOS;
+    snk->headPos.y = SNK_DEF_YPOS;
 
     for (int j = 0; j < SNK_MAX_LEN; ++j) {
 
@@ -17,7 +20,8 @@ snk_t* snk_init() {
     }
 
     snk->length = 0;
-    snk->dir = RIGHT;
+    snk->actualDir = RIGHT;
+	snk->nextDir = RIGHT;
 
 	return snk;
 
@@ -77,25 +81,48 @@ void snk_Free(snk_t* snk) {
 
 void snk_chdir(snk_t* snk, dir_e dir) {
 
-	snk->dir = dir;
-
-	/*
 	switch (dir) {
-		
+
 		case UP:
-			snk->dir = dir;
+			if (snk->actualDir != DOWN) {
+				snk->nextDir = dir;
+			}
 			break;
-	*/
+
+		case LEFT:
+			if (snk->actualDir != RIGHT) {
+				snk->nextDir = dir;
+			}
+			break;
+
+		case DOWN:
+			if (snk->actualDir != UP) {
+				snk->nextDir = dir;
+			}
+			break;
+
+		case RIGHT:
+			if (snk->actualDir != LEFT) {
+				snk->nextDir = dir;
+			}
+			break;
+
+	}
 
 }
 
 void snk_Tick(snk_t* snk) {
 
-	// shuffle snake body
+	// multiple direction keys can be pressed prior to tick
+	// we buffer the most recent direction, and set 
+	// the actual direction snek moves only when we tick
+	snk->actualDir = snk->nextDir;
+
+	// move each segment of snake body
 	snk_shuffBody(snk);
 
 	// move head
-	switch (snk->dir) {
+	switch (snk->actualDir) {
 
 		case UP:
 			snk->headPos.y -= 1;

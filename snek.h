@@ -2,16 +2,16 @@
 
 #include "defs.h"
 
-#define SNK_HEAD 'X'
-#define SNK_BODY 0
 #define SNK_MAX_LEN 100
+#define SNK_HEAD 'X'
 
 typedef struct {
 
     vect_t headPos;
     vect_t body[SNK_MAX_LEN];
     int    length;
-    dir_e  dir;
+    dir_e  nextDir;
+	dir_e  actualDir;
 
 } snk_t;
 

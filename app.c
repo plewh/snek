@@ -14,6 +14,7 @@
 #define MAX_TICKS  64.0
 #define WIN_X      80
 #define WIN_Y      24
+#define DELAY      1000000 //ns
 
 static double  currTicks;
 static double  maxTicks; 
@@ -42,7 +43,7 @@ void app_Init() {
     cbreak();
     noecho();
     curs_set(false);
-    nodelay(stdscr, 1);
+    nodelay(stdscr, true);
 
 	// init random routine
     srand(time(NULL));
@@ -56,8 +57,7 @@ void app_Init() {
     getmaxyx(stdscr, winY, winX);
     if (winX < WIN_X || winY < WIN_Y) {
 
-        fprintf(stderr, "%d:%d\n", winX, winY);
-        fprintf(stderr, "Terminal to small...\n");
+        fprintf(stderr, "Term size is %d:%d chars, require %d:%d or larger", winX, winY, WIN_X, WIN_Y);
         running = false;
 
     }
@@ -115,7 +115,7 @@ void app_CleanUp() {
 void doFrame(WINDOW* win, snk_t* snk, vect_t* fruit) {
 
     // set delay period (in nano seconds)
-    struct timespec tSpec = {0, 1000000};
+    struct timespec tSpec = {0, DELAY};
 
     // clear current buffer
     werase(win);
@@ -129,7 +129,6 @@ void doFrame(WINDOW* win, snk_t* snk, vect_t* fruit) {
 
         for (int j = 0; j < snk->length; ++j) {
             
-            //mvaddch(snk->body[j].y, snk->body[j].x, '0');
             mvwaddch(win, snk->body[j].y, snk->body[j].x, '0');
 
         }
@@ -156,8 +155,8 @@ void placeFruit(snk_t* snk, vect_t* fruit) {
 	// roll a random coord
 	do {
 
-		x = 1 + rand() % 78;
-		y = 1 + rand() % 22;
+		x = 1 + rand() % WIN_X - 2;
+		y = 1 + rand() % WIN_Y - 2;
 
 	// does coord collide with snek?
 	} while (!snk_hasCollided(snk, fruit));
