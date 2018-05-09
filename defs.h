@@ -1,7 +1,10 @@
 #pragma once
 
-#define true 1
+#define true  1
 #define false 0
+
+#define WIN_X 80
+#define WIN_Y 24
 
 typedef enum {
 
@@ -20,3 +23,4 @@ typedef struct {
 } vect_t;
 
 char isEqual(vect_t* a, vect_t* b);
+vect_t getRandomVect(int xMin, int xMax, int yMin, int yMax);

@@ -1,4 +1,6 @@
 #include "defs.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 char isEqual(vect_t* a, vect_t* b) {
 
@@ -12,3 +14,15 @@ char isEqual(vect_t* a, vect_t* b) {
 
 }
 
+vect_t getRandomVect(int xMin, int xMax, int yMin, int yMax) {
+
+    vect_t v;
+
+    v.x = xMin + (rand() % xMax);
+    v.y = xMin + (rand() % yMax);
+
+    return v;
+
+    fprintf(stderr, "%d:%d\n", v.x, v.y);
+
+}

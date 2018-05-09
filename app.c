@@ -3,36 +3,42 @@
 #include <ncurses.h>
 #include <time.h>
 #include <unistd.h>
-#include <time.h>
 #include <stdlib.h>
 
 #include "defs.h"
 #include "snek.h"
+#include "gstate.h"
 
 #define FRUIT_CHAR 'F'
 #define TICK_RATE  1.0
 #define MAX_TICKS  64.0
-#define WIN_X      80
-#define WIN_Y      24
 #define DELAY      1000000 //ns
 
+// main loop timing controls
 static double  currTicks;
-static double  maxTicks; 
-
-static snk_t*  snk;
-static vect_t  fruit;
-
+static double  maxTicks;
 static char    running;
 
+// ncurses window and win size vars
+static WINDOW* field;
 static int     offX;
 static int     offY;
 
-static WINDOW* field;
+// game state object
+static gState_t* gState;
 
-static void    doFrame(WINDOW* win, snk_t* snk, vect_t* fruit);
-static void    placeFruit(snk_t* snk, vect_t* fruit);
-static int     doCollisions(snk_t* snk, vect_t* fruit);
-static void    handleInput();
+// private funcs
+static void doFrame(WINDOW* win, gState_t* gState);
+static void handleInput(gState_t* gState);
+static void GameTick();
+static void DeathTick();
+
+// func pointers
+static void(*TickFunc)(void);
+static void(*DrawFunc)(void);
+
+// public funcs
+void req_death();
 
 void app_Init() {
 
@@ -66,53 +72,36 @@ void app_Init() {
     offX = (winX - WIN_X) / 2;
     offY = (winY - WIN_Y) / 2;
 
-	// create the snek object
-    snk = snk_init();
-
-	// initial random fruit placement
-    fruit.x = 1 + (rand() % (WIN_X - 1));
-	fruit.y = 1 + (rand() % (WIN_Y - 1));
-
 	// create ncurses window for the game field
     field = newwin(WIN_Y, WIN_X, offY, offX);
+
+    gState = gs_NewState();
+    TickFunc = GameTick;
 
 }
 
 void app_Run() {
 
-    // game loop
     while (running) {
 
-        handleInput();
+        handleInput(gState);
+        
+        TickFunc();
 
-        // tick game state
-        currTicks += TICK_RATE;
-        if (currTicks >= maxTicks) {
+        doFrame(field, gState);
 
-            currTicks = 0.0;
-			snk_Tick(snk);
-
-		}
-
-		if (doCollisions(snk, &fruit)) {
-			running = false;
-			continue;
-		}
-
-        doFrame(field, snk, &fruit);
-
-	}
+    }
 
 }
 
 void app_CleanUp() {
 
-	snk_Free(snk);
+	gs_Free(gState);
     endwin();
 
 }
 
-void doFrame(WINDOW* win, snk_t* snk, vect_t* fruit) {
+void doFrame(WINDOW* win, gState_t* gState) {
 
     // set delay period (in nano seconds)
     struct timespec tSpec = {0, DELAY};
@@ -122,23 +111,21 @@ void doFrame(WINDOW* win, snk_t* snk, vect_t* fruit) {
     box(win, 0, 0);
 
     // draw fruit to buffer
-    mvwaddch(win, fruit->y, fruit->x, FRUIT_CHAR);
+    mvwaddch(win, gState->fruit.y, gState->fruit.x, FRUIT_CHAR);
 
     // draw snk body to buffer
-    if (snk->length > -1) {
+    if (gState->snek->length > -1) {
 
-        for (int j = 0; j < snk->length; ++j) {
+        for (int j = 0; j < gState->snek->length; ++j) {
             
-            mvwaddch(win, snk->body[j].y, snk->body[j].x, '0');
+            mvwaddch(win, gState->snek->body[j].y, gState->snek->body[j].x, '0');
 
         }
 
     }
 
     // draw snk head to buffer
-    mvwaddch(win, snk->headPos.y, snk->headPos.x, SNK_HEAD);
-
-   
+    mvwaddch(win, gState->snek->headPos.y, gState->snek->headPos.x, SNK_HEAD);
 
     // put buffer on screen
     wrefresh(win);
@@ -148,60 +135,7 @@ void doFrame(WINDOW* win, snk_t* snk, vect_t* fruit) {
 
 }
 
-void placeFruit(snk_t* snk, vect_t* fruit) {
-
-	int x, y;
-
-	// roll a random coord
-	do {
-
-		x = 1 + rand() % WIN_X - 2;
-		y = 1 + rand() % WIN_Y - 2;
-
-	// does coord collide with snek?
-	} while (!snk_hasCollided(snk, fruit));
-
-	fruit->x = x;
-	fruit->y = y;
-
-}
-
-int doCollisions(snk_t* snk, vect_t* fruit) {
-
-	// Check if fruit has been eaten
-	if (snk_hasCollided(snk, fruit)) {
-
-		placeFruit(snk, fruit);
-		snk_addLength(snk);
-
-	}
-
-	// Check if snek has hit the field edge
-	if (snk->headPos.x < 1 || snk->headPos.x > (WIN_X - 2)) {
-
-		return true;
-
-	}
-
-	if (snk->headPos.y < 1 || snk->headPos.y > (WIN_Y - 2)) {
-
-		return true;
-
-	}
-
-	// has snek eaten itself?
-	for (int j = 0; j < snk->length; ++j) {
-		if (isEqual(&snk->body[j], &snk->headPos)) {
-
-			return true;
-
-		}
-	}
-
-	return false;
-}
-
-void handleInput() {
+void handleInput(gState_t* gState) {
 
     char ch = '~';
 
@@ -210,37 +144,23 @@ void handleInput() {
             switch (ch) {
                 
                 case 'q':
-                    running = false;
+                    req_death();
                     break;
 
                 case 'w':
-					snk_chdir(snk, UP);
-                    break;
-
                 case 'a':
-					snk_chdir(snk, LEFT);
-                    break;
-
                 case 's':
-					snk_chdir(snk, DOWN);
-                    break;
-
                 case 'd':
-					snk_chdir(snk, RIGHT);
-                    break;
-
                 case ' ':
-					snk_addLength(snk);
+					gs_HandleInput(gState, ch);
                     break;
 
                 case 'x':
                     ++maxTicks;
-                    //fprintf(stderr, "%f\n", *maxTicks);
                     break;
 
                 case 'c':
                     --maxTicks;
-                    //fprintf(stderr, "%f\n", *maxTicks);
                     break;
 
                 default:
@@ -250,4 +170,48 @@ void handleInput() {
 
     }
 
+}
+
+void GameTick() {
+
+    currTicks += TICK_RATE;
+    if (currTicks >= maxTicks) {
+
+        currTicks = 0.0;
+        gs_Tick(gState);
+        
+	}
+
+}
+
+void req_death() {
+
+    //TickFunc = DeathTick;
+    running = false;
+
+}
+
+static void DeathTick() {
+
+/*
+    currTicks += TICK_RATE;
+    if (currTicks >= maxTicks) {
+
+        currTicks = 0.0;
+        
+        if (++deathTicks == 100) {
+
+            deathTicks = 0;
+            
+            if (dChar == ' ') {
+                dChar = '?';
+            } else {
+                dChar = ' ';
+            }
+
+        }
+
+	}
+    //running = false;
+*/
 }

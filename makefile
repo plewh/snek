@@ -1,4 +1,4 @@
-all: main.c snek.c app.c defs.c
+all: app.c defs.c gstate.c main.c snek.c
 	clear
-	gcc -std=gnu99 main.c snek.c app.c defs.c -o snk -lncurses
+	gcc -std=gnu99 app.c defs.c gstate.c main.c snek.c -o snk -lncurses
 	./snk
