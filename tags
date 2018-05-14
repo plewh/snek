@@ -1,0 +1,100 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+APP_QUIT	event.h	/^	APP_QUIT,$/;"	e	enum:__anon5
+APP_TICK	event.h	/^	APP_TICK,$/;"	e	enum:__anon5
+APP_TICKRATE_DEC	event.h	/^	APP_TICKRATE_DEC,$/;"	e	enum:__anon5
+APP_TICKRATE_INC	event.h	/^	APP_TICKRATE_INC,$/;"	e	enum:__anon5
+CalcDelta	app.c	/^double CalcDelta() {$/;"	f
+DOWN	snk.h	/^	DOWN,$/;"	e	enum:__anon7
+DRAW_MAX_OBJ	drawable.h	3;"	d
+GS_TICK_DEVISOR	gstate.c	8;"	d	file:
+LEFT	snk.h	/^	LEFT,$/;"	e	enum:__anon7
+MAX_EVENTS	event.c	4;"	d	file:
+MAX_RESPONDERS	event.c	5;"	d	file:
+RIGHT	snk.h	/^	RIGHT$/;"	e	enum:__anon7
+RespArr	event.c	/^static void (*RespArr[MAX_RESPONDERS])(event_t*);$/;"	v	file:
+SNK_DEF_XPOS	snk.c	4;"	d	file:
+SNK_DEF_YPOS	snk.c	5;"	d	file:
+SNK_INC_LEN	event.h	/^	SNK_INC_LEN$/;"	e	enum:__anon5
+SNK_MAX_LEN	snk.h	4;"	d
+SNK_MOVE_DOWN	event.h	/^	SNK_MOVE_DOWN,$/;"	e	enum:__anon5
+SNK_MOVE_LEFT	event.h	/^	SNK_MOVE_LEFT,$/;"	e	enum:__anon5
+SNK_MOVE_RIGHT	event.h	/^	SNK_MOVE_RIGHT,$/;"	e	enum:__anon5
+SNK_MOVE_UP	event.h	/^	SNK_MOVE_UP,$/;"	e	enum:__anon5
+TICK_RATE	app.c	11;"	d	file:
+UP	snk.h	/^	UP,$/;"	e	enum:__anon7
+WIN_X	defs.h	10;"	d
+WIN_Y	defs.h	11;"	d
+acc	app.c	/^static double acc;$/;"	v	file:
+actualDir	snk.h	/^	dir_e   actualDir;$/;"	m	struct:__anon8
+app_Cleanup	app.c	/^void app_Cleanup() {$/;"	f
+app_Init	app.c	/^void app_Init() {$/;"	f
+app_RequestQuit	app.c	/^void app_RequestQuit() {$/;"	f
+app_Responder	app.c	/^void app_Responder(event_t* ev) {$/;"	f
+app_Run	app.c	/^void app_Run() {$/;"	f
+body	snk.h	/^    coord_t body[SNK_MAX_LEN];$/;"	m	struct:__anon8
+ch	drawable.h	/^	char    ch;$/;"	m	struct:__anon2
+coord_t	defs.h	/^} coord_t;$/;"	t	typeref:struct:__anon1
+dir_e	snk.h	/^} dir_e;$/;"	t	typeref:enum:__anon7
+drawable_t	drawable.h	/^} drawable_t;$/;"	t	typeref:struct:__anon3
+evBuffer	event.c	/^static event_t* evBuffer[MAX_EVENTS];$/;"	v	file:
+evHead	event.c	/^static int evHead;$/;"	v	file:
+evTail	event.c	/^static int evTail;$/;"	v	file:
+ev_Cleanup	event.c	/^void ev_Cleanup() {$/;"	f
+ev_FreeEvent	event.c	/^void ev_FreeEvent(event_t* event) {$/;"	f
+ev_Init	event.c	/^void ev_Init() {$/;"	f
+ev_NewEvent	event.c	/^event_t* ev_NewEvent(eventType_e type) {$/;"	f
+ev_PumpEvents	event.c	/^void ev_PumpEvents() {$/;"	f
+ev_PushEvent	event.c	/^void ev_PushEvent(event_t* event) {$/;"	f
+ev_RegisterResponder	event.c	/^void ev_RegisterResponder(void (*Resp)(event_t*)) {$/;"	f
+eventType_e	event.h	/^} eventType_e;$/;"	t	typeref:enum:__anon5
+event_t	event.h	/^} event_t;$/;"	t	typeref:struct:__anon4
+false	defs.h	14;"	d
+frt	gstate.c	/^static frt_t* frt;$/;"	v	file:
+frt_Free	frt.c	/^void frt_Free(frt_t* frt) {$/;"	f
+frt_NewFrt	frt.c	/^frt_t* frt_NewFrt() {$/;"	f
+frt_Tick	frt.c	/^void frt_Tick(frt_t* frt) {$/;"	f
+frt_t	frt.h	/^} frt_t;$/;"	t	typeref:struct:__anon6
+gs_Cleanup	gstate.c	/^void gs_Cleanup() {$/;"	f
+gs_GetFruit	gstate.c	/^frt_t const* gs_GetFruit() {$/;"	f
+gs_GetSnake	gstate.c	/^snk_t const* gs_GetSnake() {$/;"	f
+gs_Init	gstate.c	/^void gs_Init() {$/;"	f
+gs_Responder	gstate.c	/^void gs_Responder() {$/;"	f
+gs_Tick	gstate.c	/^void gs_Tick() {$/;"	f
+headPos	snk.h	/^    coord_t headPos;$/;"	m	struct:__anon8
+in_Cleanup	input.c	/^void in_Cleanup() {$/;"	f
+in_HandleInput	input.c	/^void in_HandleInput() {$/;"	f
+in_Init	input.c	/^void in_Init() {$/;"	f
+lastTicks	app.c	/^static struct timespec lastTicks;$/;"	v	typeref:struct:timespec	file:
+length	snk.h	/^    int     length;$/;"	m	struct:__anon8
+main	main.c	/^int main() {$/;"	f
+nextDir	snk.h	/^    dir_e   nextDir;$/;"	m	struct:__anon8
+obj_t	drawable.h	/^} obj_t;$/;"	t	typeref:struct:__anon2
+offX	render.c	/^static int offX;$/;"	v	file:
+offY	render.c	/^static int offY;$/;"	v	file:
+pos	drawable.h	/^	coord_t pos;$/;"	m	struct:__anon2
+pos	frt.h	/^	coord_t pos;$/;"	m	struct:__anon6
+r_Cleanup	render.c	/^void r_Cleanup() {$/;"	f
+r_DoFrame	render.c	/^void r_DoFrame() {$/;"	f
+r_Init	render.c	/^void r_Init() {$/;"	f
+r_Responder	render.c	/^void r_Responder(event_t* ev) {$/;"	f
+r_Tick	render.c	/^void r_Tick() {$/;"	f
+respCount	event.c	/^static int respCount;$/;"	v	file:
+running	app.c	/^static int running;$/;"	v	file:
+snk	gstate.c	/^static snk_t* snk;$/;"	v	file:
+snk_Free	snk.c	/^void snk_Free(snk_t* snk) {$/;"	f
+snk_NewSnk	snk.c	/^snk_t* snk_NewSnk() {$/;"	f
+snk_Tick	snk.c	/^void snk_Tick(snk_t* snk) {$/;"	f
+snk_shuffBody	snk.c	/^void snk_shuffBody(snk_t* snk) {$/;"	f
+snk_t	snk.h	/^} snk_t;$/;"	t	typeref:struct:__anon8
+tickRate	app.c	/^static double tickRate;$/;"	v	file:
+ticks	gstate.c	/^static double ticks;$/;"	v	file:
+true	defs.h	13;"	d
+type	event.h	/^	int type;$/;"	m	struct:__anon4
+win	render.c	/^static WINDOW* win;$/;"	v	file:
+x	defs.h	/^	int x;$/;"	m	struct:__anon1
+y	defs.h	/^	int y;$/;"	m	struct:__anon1

@@ -1,253 +1,123 @@
 #include "app.h"
 
-#include <ncurses.h>
 #include <time.h>
-#include <unistd.h>
-#include <time.h>
-#include <stdlib.h>
+#include <stdio.h>
 
 #include "defs.h"
-#include "snek.h"
+#include "render.h"
+#include "input.h"
+#include "gstate.h"
 
-#define FRUIT_CHAR 'F'
-#define TICK_RATE  1.0
-#define MAX_TICKS  64.0
-#define WIN_X      80
-#define WIN_Y      24
-#define DELAY      1000000 //ns
+#define TICK_RATE 60 //hz
 
-static double  currTicks;
-static double  maxTicks; 
+static int running;
 
-static snk_t*  snk;
-static vect_t  fruit;
-
-static char    running;
-
-static int     offX;
-static int     offY;
-
-static WINDOW* field;
-
-static void    doFrame(WINDOW* win, snk_t* snk, vect_t* fruit);
-static void    placeFruit(snk_t* snk, vect_t* fruit);
-static int     doCollisions(snk_t* snk, vect_t* fruit);
-static void    handleInput();
+static struct timespec lastTicks;
+static double CalcDelta();
+static double acc;
+static double tickRate;
 
 void app_Init() {
 
 	running = true;
 
-	// init ncurses library
-    initscr();
-    cbreak();
-    noecho();
-    curs_set(false);
-    nodelay(stdscr, true);
+	ev_Init();
+	in_Init();
+	 r_Init();
+	gs_Init();
 
-	// init random routine
-    srand(time(NULL));
+	ev_RegisterResponder(app_Responder);
+	ev_RegisterResponder(r_Responder);
 
-	// init timing control vars
-    currTicks = 0.0;
-    maxTicks = MAX_TICKS;
-
-    // screen size check
-    int winX, winY;
-    getmaxyx(stdscr, winY, winX);
-    if (winX < WIN_X || winY < WIN_Y) {
-
-        fprintf(stderr, "Term size is %d:%d chars, require %d:%d or larger", winX, winY, WIN_X, WIN_Y);
-        running = false;
-
-    }
-
-    // calc field offset
-    offX = (winX - WIN_X) / 2;
-    offY = (winY - WIN_Y) / 2;
-
-	// create the snek object
-    snk = snk_init();
-
-	// initial random fruit placement
-    fruit.x = 1 + (rand() % (WIN_X - 1));
-	fruit.y = 1 + (rand() % (WIN_Y - 1));
-
-	// create ncurses window for the game field
-    field = newwin(WIN_Y, WIN_X, offY, offX);
+	tickRate = (1.0 / TICK_RATE) * 1000;	
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &lastTicks);
 
 }
 
 void app_Run() {
 
-    // game loop
-    while (running) {
+	while (running) {
 
-        handleInput();
+		in_HandleInput();
+		ev_PumpEvents();
 
-        // tick game state
-        currTicks += TICK_RATE;
-        if (currTicks >= maxTicks) {
+		acc += CalcDelta();
 
-            currTicks = 0.0;
-			snk_Tick(snk);
+		while (acc >= tickRate) {
+
+			acc -= tickRate;
+
+			gs_Tick();
+			r_Tick();
+
+			r_DoFrame();
 
 		}
 
-		if (doCollisions(snk, &fruit)) {
+	}
+
+}
+
+void app_Cleanup() {
+
+	ev_Cleanup();
+	in_Init();
+	 r_Cleanup();
+
+}
+
+void app_RequestQuit() {
+
+	;
+
+}
+
+void app_Responder(event_t* ev) {
+
+	switch (ev->type) {
+		
+		case APP_QUIT:
 			running = false;
-			continue;
+			break;
+
+		case APP_TICKRATE_INC:
+			// increase tickrate
+			break;
+
+		case APP_TICKRATE_DEC:
+			// decrease tickrate
+			break;
+
+		case APP_TICK:
+			fprintf(stderr, "Tick...\n");
+
+		default:
+			break;
+
+	}
+
+}
+
+double CalcDelta() {
+
+		struct timespec ticks;
+		struct timespec temp;
+		clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ticks);
+
+		if ( (ticks.tv_nsec - lastTicks.tv_nsec) < 0 ) {
+
+			temp.tv_sec = ticks.tv_sec - lastTicks.tv_sec - 1;
+			temp.tv_nsec = 1000000000 + ticks.tv_nsec - lastTicks.tv_nsec;
+
+		} else {
+			
+			temp.tv_sec = ticks.tv_sec - lastTicks.tv_sec;
+			temp.tv_nsec = ticks.tv_nsec - lastTicks.tv_nsec;
+
 		}
 
-        doFrame(field, snk, &fruit);
+		lastTicks = ticks;
 
-	}
-
-}
-
-void app_CleanUp() {
-
-	snk_Free(snk);
-    endwin();
-
-}
-
-void doFrame(WINDOW* win, snk_t* snk, vect_t* fruit) {
-
-    // set delay period (in nano seconds)
-    struct timespec tSpec = {0, DELAY};
-
-    // clear current buffer
-    werase(win);
-    box(win, 0, 0);
-
-    // draw fruit to buffer
-    mvwaddch(win, fruit->y, fruit->x, FRUIT_CHAR);
-
-    // draw snk body to buffer
-    if (snk->length > -1) {
-
-        for (int j = 0; j < snk->length; ++j) {
-            
-            mvwaddch(win, snk->body[j].y, snk->body[j].x, '0');
-
-        }
-
-    }
-
-    // draw snk head to buffer
-    mvwaddch(win, snk->headPos.y, snk->headPos.x, SNK_HEAD);
-
-   
-
-    // put buffer on screen
-    wrefresh(win);
-
-    // make puter go slow
-    nanosleep(&tSpec, NULL);
-
-}
-
-void placeFruit(snk_t* snk, vect_t* fruit) {
-
-	int x, y;
-
-	// roll a random coord
-	do {
-
-		x = 1 + rand() % WIN_X - 2;
-		y = 1 + rand() % WIN_Y - 2;
-
-	// does coord collide with snek?
-	} while (!snk_hasCollided(snk, fruit));
-
-	fruit->x = x;
-	fruit->y = y;
-
-}
-
-int doCollisions(snk_t* snk, vect_t* fruit) {
-
-	// Check if fruit has been eaten
-	if (snk_hasCollided(snk, fruit)) {
-
-		placeFruit(snk, fruit);
-		snk_addLength(snk);
-
-	}
-
-	// Check if snek has hit the field edge
-	if (snk->headPos.x < 1 || snk->headPos.x > (WIN_X - 2)) {
-
-		return true;
-
-	}
-
-	if (snk->headPos.y < 1 || snk->headPos.y > (WIN_Y - 2)) {
-
-		return true;
-
-	}
-
-	// has snek eaten itself?
-	for (int j = 0; j < snk->length; ++j) {
-		if (isEqual(&snk->body[j], &snk->headPos)) {
-
-			return true;
-
-		}
-	}
-
-	return false;
-}
-
-void handleInput() {
-
-    char ch = '~';
-
-    while ( (ch = getch()) != ERR ) {
-
-            switch (ch) {
-                
-                case 'q':
-                    running = false;
-                    break;
-
-                case 'w':
-					snk_chdir(snk, UP);
-                    break;
-
-                case 'a':
-					snk_chdir(snk, LEFT);
-                    break;
-
-                case 's':
-					snk_chdir(snk, DOWN);
-                    break;
-
-                case 'd':
-					snk_chdir(snk, RIGHT);
-                    break;
-
-                case ' ':
-					snk_addLength(snk);
-                    break;
-
-                case 'x':
-                    ++maxTicks;
-                    //fprintf(stderr, "%f\n", *maxTicks);
-                    break;
-
-                case 'c':
-                    --maxTicks;
-                    //fprintf(stderr, "%f\n", *maxTicks);
-                    break;
-
-                default:
-                    break;
-
-            }
-
-    }
+		return (double)temp.tv_nsec / 1000000.0;
 
 }

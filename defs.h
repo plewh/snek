@@ -1,22 +1,14 @@
 #pragma once
 
-#define true 1
-#define false 0
-
-typedef enum {
-
-    UP,
-    LEFT,
-    DOWN,
-    RIGHT
-
-} dir_e;
-
 typedef struct {
 
-    int x;
-    int y;
+	int x;
+	int y;
 
-} vect_t;
+} coord_t;
 
-char isEqual(vect_t* a, vect_t* b);
+#define WIN_X 80
+#define WIN_Y 24
+
+#define true 1
+#define false 0
