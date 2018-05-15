@@ -67,7 +67,6 @@ void snk_Tick(snk_t* snk) {
 
 	}
 
-
 }
 
 void snk_shuffBody(snk_t* snk) {
@@ -85,14 +84,6 @@ void snk_shuffBody(snk_t* snk) {
 }
 
 /*
-
-void snk_addLength(snk_t* snk) {
-
-    ++snk->length;
-    snk->body[snk->length].x = snk->headPos.x;
-    snk->body[snk->length].y = snk->headPos.y;
-
-}
 
 int snk_hasCollided(snk_t* snk, vect_t* vect) {
 
@@ -118,7 +109,9 @@ int snk_hasCollided(snk_t* snk, vect_t* vect) {
 
 }
 
-void snk_chdir(snk_t* snk, dir_e dir) {
+*/
+
+void snk_Move(snk_t* snk, dir_e dir) {
 
 	switch (dir) {
 
@@ -150,4 +143,11 @@ void snk_chdir(snk_t* snk, dir_e dir) {
 
 }
 
-*/
+void snk_Grow(snk_t* snk) {
+
+    ++snk->length;
+    snk->body[snk->length].x = snk->headPos.x;
+    snk->body[snk->length].y = snk->headPos.y;
+
+}
+

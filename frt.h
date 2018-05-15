@@ -7,6 +7,6 @@ typedef struct {
 
 } frt_t;
 
-void   frt_Tick(frt_t* frt);
-frt_t* frt_NewFrt();
+frt_t* frt_NewFrt(int winX, int winY);
 void   frt_Free(frt_t* frt);
+void   frt_Tick(frt_t* frt);

@@ -50,18 +50,20 @@ void r_Responder(event_t* ev) {
 
 void r_DoFrame() {
 
+	snk_t const* snk = gs_GetSnake();
+	frt_t const* frt = gs_GetFruit();
+
 	werase(win);
 	box(win, 0, 0);
 
-	snk_t const* snk = gs_GetSnake();
 
 	for (int j = 0; j < snk->length; ++j) {
 
-		mvaddch(snk->body->y, snk->body->x, '0');
+		mvwaddch(win, snk->body[j].y, snk->body[j].x, '0');
 
 	}
 
-	mvaddch(snk->headPos.y, snk->headPos.x, 'X');
+	mvwaddch(win, snk->headPos.y, snk->headPos.x, 'X');
 
 	wrefresh(win);
 

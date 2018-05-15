@@ -2,6 +2,7 @@
 
 #include <time.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "defs.h"
 #include "render.h"
@@ -28,6 +29,7 @@ void app_Init() {
 
 	ev_RegisterResponder(app_Responder);
 	ev_RegisterResponder(r_Responder);
+	ev_RegisterResponder(gs_Responder);
 
 	tickRate = (1.0 / TICK_RATE) * 1000;	
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &lastTicks);
@@ -50,9 +52,10 @@ void app_Run() {
 			gs_Tick();
 			r_Tick();
 
-			r_DoFrame();
 
 		}
+
+		r_DoFrame();
 
 	}
 

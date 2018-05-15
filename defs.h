@@ -1,5 +1,11 @@
 #pragma once
 
+#define WIN_X 80
+#define WIN_Y 24
+
+#define true 1
+#define false 0
+
 typedef struct {
 
 	int x;
@@ -7,8 +13,4 @@ typedef struct {
 
 } coord_t;
 
-#define WIN_X 80
-#define WIN_Y 24
-
-#define true 1
-#define false 0
+coord_t GetRandomCoord(int winX, int winY);

@@ -1,11 +1,5 @@
 #pragma once
 
-typedef struct {
-
-	int type;
-
-} event_t;
-
 typedef enum {
 
 	APP_QUIT,
@@ -19,6 +13,12 @@ typedef enum {
 	SNK_INC_LEN
 
 } eventType_e;
+
+typedef struct {
+
+	eventType_e type;
+
+} event_t;
 
 void ev_Init();
 void ev_Cleanup();
