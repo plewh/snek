@@ -3,6 +3,8 @@
 #include <time.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include "defs.h"
 #include "render.h"
@@ -33,6 +35,8 @@ void app_Init() {
 
 	tickRate = (1.0 / TICK_RATE) * 1000;	
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &lastTicks);
+
+	srand(time(NULL));
 
 }
 
@@ -122,5 +126,16 @@ double CalcDelta() {
 		lastTicks = ticks;
 
 		return (double)temp.tv_nsec / 1000000.0;
+
+}
+
+coord_t app_GetRandomCoord(int winX, int winY) {
+
+	int x = (1 + rand()) % (winX - 1);
+	int y = (1 + rand()) % (winY - 1);
+
+	coord_t c = {x, y};
+
+	return c;
 
 }

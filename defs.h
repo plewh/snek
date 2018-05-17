@@ -13,4 +13,4 @@ typedef struct {
 
 } coord_t;
 
-coord_t GetRandomCoord(int winX, int winY);
+int IsEqual(coord_t* a, coord_t* b);

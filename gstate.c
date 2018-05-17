@@ -1,5 +1,6 @@
 #include "gstate.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include "frt.h"
 #include "snk.h"
 
@@ -9,11 +10,12 @@ static snk_t* snk;
 static frt_t* frt;
 
 static double ticks;
+static frt_t* gs_PlaceFruit();
 
 void gs_Init() {
 
 	snk = snk_NewSnk();
-	frt = frt_NewFrt();
+	frt = gs_PlaceFruit();
 
 	ticks = 0.0;
 
@@ -83,3 +85,16 @@ frt_t const* gs_GetFruit() {
 
 }
 
+frt_t* gs_PlaceFruit() {
+
+	frt_t* pFrt;
+
+	do {
+
+		pFrt = frt_NewFrt(WIN_X, WIN_Y);
+
+	} while(!snk_IsCollided(snk, &(pFrt->pos)));
+
+	return pFrt;
+
+}

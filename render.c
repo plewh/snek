@@ -56,7 +56,11 @@ void r_DoFrame() {
 	werase(win);
 	box(win, 0, 0);
 
+	// fruit
+	mvwprintw(win, 0, 0, "%d:%d", frt->pos.x, frt->pos.y);
+	mvwaddch(win, frt->pos.y, frt->pos.x, 'F');
 
+	// snake
 	for (int j = 0; j < snk->length; ++j) {
 
 		mvwaddch(win, snk->body[j].y, snk->body[j].x, '0');

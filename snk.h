@@ -28,3 +28,4 @@ void   snk_Free(snk_t* snk);
 void   snk_Tick(snk_t* snk);
 void   snk_Move(snk_t* snk, dir_e dir);
 void   snk_Grow(snk_t* snk);
+int    snk_IsCollided(snk_t* snk, coord_t* coord);

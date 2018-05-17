@@ -83,14 +83,12 @@ void snk_shuffBody(snk_t* snk) {
 
 }
 
-/*
-
-int snk_hasCollided(snk_t* snk, vect_t* vect) {
+int snk_IsCollided(snk_t* snk, coord_t* coord) {
 
 	char cFlag = false;
 
 	// has head collided?
-	if (isEqual(&snk->headPos, vect)) {
+	if (IsEqual(&snk->headPos, coord)) {
 
 		cFlag = true;
 
@@ -98,7 +96,7 @@ int snk_hasCollided(snk_t* snk, vect_t* vect) {
 
 	// has body collided?
 	for (int j = 0; j < snk->length; ++j) {
-		if (isEqual(&snk->body[j], vect)) {
+		if (IsEqual(&snk->body[j], coord)) {
 
 			cFlag = true;
 
@@ -108,8 +106,6 @@ int snk_hasCollided(snk_t* snk, vect_t* vect) {
 	return cFlag;
 
 }
-
-*/
 
 void snk_Move(snk_t* snk, dir_e dir) {
 

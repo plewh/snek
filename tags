@@ -11,7 +11,8 @@ APP_TICKRATE_INC	event.h	/^	APP_TICKRATE_INC,$/;"	e	enum:__anon4
 CalcDelta	app.c	/^double CalcDelta() {$/;"	f
 DOWN	snk.h	/^	DOWN,$/;"	e	enum:__anon7
 DRAW_MAX_OBJ	drawable.h	3;"	d
-GS_TICK_DEVISOR	gstate.c	6;"	d	file:
+GS_TICK_DEVISOR	gstate.c	7;"	d	file:
+IsEqual	defs.c	/^int IsEqual(coord_t* a, coord_t* b) {$/;"	f
 LEFT	snk.h	/^	LEFT,$/;"	e	enum:__anon7
 MAX_EVENTS	event.c	4;"	d	file:
 MAX_RESPONDERS	event.c	5;"	d	file:
@@ -25,13 +26,14 @@ SNK_MOVE_DOWN	event.h	/^	SNK_MOVE_DOWN,$/;"	e	enum:__anon4
 SNK_MOVE_LEFT	event.h	/^	SNK_MOVE_LEFT,$/;"	e	enum:__anon4
 SNK_MOVE_RIGHT	event.h	/^	SNK_MOVE_RIGHT,$/;"	e	enum:__anon4
 SNK_MOVE_UP	event.h	/^	SNK_MOVE_UP,$/;"	e	enum:__anon4
-TICK_RATE	app.c	12;"	d	file:
+TICK_RATE	app.c	14;"	d	file:
 UP	snk.h	/^	UP,$/;"	e	enum:__anon7
-WIN_X	defs.h	10;"	d
-WIN_Y	defs.h	11;"	d
+WIN_X	defs.h	3;"	d
+WIN_Y	defs.h	4;"	d
 acc	app.c	/^static double acc;$/;"	v	file:
 actualDir	snk.h	/^	dir_e   actualDir;$/;"	m	struct:__anon8
 app_Cleanup	app.c	/^void app_Cleanup() {$/;"	f
+app_GetRandomCoord	app.c	/^coord_t app_GetRandomCoord(int winX, int winY) {$/;"	f
 app_Init	app.c	/^void app_Init() {$/;"	f
 app_RequestQuit	app.c	/^void app_RequestQuit() {$/;"	f
 app_Responder	app.c	/^void app_Responder(event_t* ev) {$/;"	f
@@ -53,16 +55,17 @@ ev_PushEvent	event.c	/^void ev_PushEvent(event_t* event) {$/;"	f
 ev_RegisterResponder	event.c	/^void ev_RegisterResponder(void (*Resp)(event_t*)) {$/;"	f
 eventType_e	event.h	/^} eventType_e;$/;"	t	typeref:enum:__anon4
 event_t	event.h	/^} event_t;$/;"	t	typeref:struct:__anon5
-false	defs.h	14;"	d
+false	defs.h	7;"	d
 frt	gstate.c	/^static frt_t* frt;$/;"	v	file:
 frt_Free	frt.c	/^void frt_Free(frt_t* frt) {$/;"	f
-frt_NewFrt	frt.c	/^frt_t* frt_NewFrt() {$/;"	f
+frt_NewFrt	frt.c	/^frt_t* frt_NewFrt(int winX, int winY) {$/;"	f
 frt_Tick	frt.c	/^void frt_Tick(frt_t* frt) {$/;"	f
 frt_t	frt.h	/^} frt_t;$/;"	t	typeref:struct:__anon6
 gs_Cleanup	gstate.c	/^void gs_Cleanup() {$/;"	f
 gs_GetFruit	gstate.c	/^frt_t const* gs_GetFruit() {$/;"	f
 gs_GetSnake	gstate.c	/^snk_t const* gs_GetSnake() {$/;"	f
 gs_Init	gstate.c	/^void gs_Init() {$/;"	f
+gs_PlaceFruit	gstate.c	/^frt_t* gs_PlaceFruit() {$/;"	f
 gs_Responder	gstate.c	/^void gs_Responder(event_t* ev) {$/;"	f
 gs_Tick	gstate.c	/^void gs_Tick() {$/;"	f
 headPos	snk.h	/^    coord_t headPos;$/;"	m	struct:__anon8
@@ -88,6 +91,7 @@ running	app.c	/^static int running;$/;"	v	file:
 snk	gstate.c	/^static snk_t* snk;$/;"	v	file:
 snk_Free	snk.c	/^void snk_Free(snk_t* snk) {$/;"	f
 snk_Grow	snk.c	/^void snk_Grow(snk_t* snk) {$/;"	f
+snk_IsCollided	snk.c	/^int snk_IsCollided(snk_t* snk, coord_t* coord) {$/;"	f
 snk_Move	snk.c	/^void snk_Move(snk_t* snk, dir_e dir) {$/;"	f
 snk_NewSnk	snk.c	/^snk_t* snk_NewSnk() {$/;"	f
 snk_Tick	snk.c	/^void snk_Tick(snk_t* snk) {$/;"	f
@@ -95,7 +99,7 @@ snk_shuffBody	snk.c	/^void snk_shuffBody(snk_t* snk) {$/;"	f
 snk_t	snk.h	/^} snk_t;$/;"	t	typeref:struct:__anon8
 tickRate	app.c	/^static double tickRate;$/;"	v	file:
 ticks	gstate.c	/^static double ticks;$/;"	v	file:
-true	defs.h	13;"	d
+true	defs.h	6;"	d
 type	event.h	/^	eventType_e type;$/;"	m	struct:__anon5
 win	render.c	/^static WINDOW* win;$/;"	v	file:
 x	defs.h	/^	int x;$/;"	m	struct:__anon1

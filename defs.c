@@ -1,13 +1,9 @@
 #include "defs.h"
-#include <stdlib.h>
 
-coord_t GetRandomCoord(int winX, int winY) {
+int IsEqual(coord_t* a, coord_t* b) {
 
-	int x = (1 + rand()) % (winX - 1);
-	int y = (1 + rand()) % (winY - 1);
-
-	coord_t c = {x, y};
-
-	return c;
+	if (a->x == b->x && a->y == b->y)
+		return true;
+	return false;
 
 }

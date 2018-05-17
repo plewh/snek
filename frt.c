@@ -1,11 +1,12 @@
 #include "frt.h"
 #include <stdlib.h>
+#include "app.h"
 
 frt_t* frt_NewFrt(int winX, int winY) {
 
 	frt_t* f = malloc(sizeof(frt_t));
 
-	f->pos = GetRandomCoord(winX, winY);
+	f->pos = app_GetRandomCoord(winX, winY);
 
 	return f;
 
