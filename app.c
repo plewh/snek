@@ -24,6 +24,8 @@ void app_Init() {
 
 	running = true;
 
+	srand(time(NULL));
+
 	ev_Init();
 	in_Init();
 	 r_Init();
@@ -36,7 +38,6 @@ void app_Init() {
 	tickRate = (1.0 / TICK_RATE) * 1000;	
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &lastTicks);
 
-	srand(time(NULL));
 
 }
 
@@ -88,11 +89,11 @@ void app_Responder(event_t* ev) {
 			break;
 
 		case APP_TICKRATE_INC:
-			// increase tickrate
+			tickRate += 0.5;
 			break;
 
 		case APP_TICKRATE_DEC:
-			// decrease tickrate
+			tickRate -= 0.5;
 			break;
 
 		case APP_TICK:
@@ -131,8 +132,8 @@ double CalcDelta() {
 
 coord_t app_GetRandomCoord(int winX, int winY) {
 
-	int x = (1 + rand()) % (winX - 1);
-	int y = (1 + rand()) % (winY - 1);
+	int x = 1 + (rand() % (winX - 2));
+	int y = 1 + (rand() % (winY - 2));
 
 	coord_t c = {x, y};
 

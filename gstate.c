@@ -40,6 +40,14 @@ void gs_Tick() {
 
 	}
 
+	if (snk_IsCollided(snk, &frt->pos)) {
+
+		frt_Free(frt);
+		gs_PlaceFruit();
+		snk_Grow(snk);
+
+	}
+
 }
 
 void gs_Responder(event_t* ev) {
@@ -87,13 +95,15 @@ frt_t const* gs_GetFruit() {
 
 frt_t* gs_PlaceFruit() {
 
+	// dont place new fruit inside snek
+
 	frt_t* pFrt;
 
 	do {
 
 		pFrt = frt_NewFrt(WIN_X, WIN_Y);
 
-	} while(!snk_IsCollided(snk, &(pFrt->pos)));
+	} while(snk_IsCollided(snk, &(pFrt->pos)));
 
 	return pFrt;
 
