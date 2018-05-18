@@ -60,14 +60,19 @@ void r_DoFrame() {
 	mvwprintw(win, 0, 0, "%d:%d", frt->pos.x, frt->pos.y);
 	mvwaddch(win, frt->pos.y, frt->pos.x, 'F');
 
-	// snake
+	// snake body
 	for (int j = 0; j < snk->length; ++j) {
 
 		mvwaddch(win, snk->body[j].y, snk->body[j].x, '0');
 
 	}
 
+	// snake head
 	mvwaddch(win, snk->headPos.y, snk->headPos.x, 'X');
+
+	//pause
+	if (gs_IsPaused())
+		mvwprintw(win, 0, 10, "PAUSE");
 
 	wrefresh(win);
 

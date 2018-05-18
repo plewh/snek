@@ -54,6 +54,9 @@ void in_HandleInput() {
 					ev_PushEvent(ev_NewEvent(APP_TICKRATE_INC));
                     break;
 
+				case 'p':
+					ev_PushEvent(ev_NewEvent(GS_PAUSE));
+
                 default:
                     break;
 
