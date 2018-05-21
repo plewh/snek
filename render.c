@@ -56,6 +56,11 @@ void r_DoFrame() {
 	werase(win);
 	box(win, 0, 0);
 
+	if (gs_IsHidden()) {
+		wrefresh(win);
+		return;
+	}
+
 	// fruit
 	mvwprintw(win, 0, 0, "%d:%d", frt->pos.x, frt->pos.y);
 	mvwaddch(win, frt->pos.y, frt->pos.x, 'F');

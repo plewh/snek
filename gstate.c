@@ -19,6 +19,9 @@ static frt_t*    gs_PlaceFruit(snk_t* snk);
 static void      gs_GameTick(gstate_t* gstate, gfield_t* gfield);
 static void      gs_GameResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev);
 
+static void      gs_DeathTick(gstate_t* gstate, gfield_t* gfield);
+static void      gs_DeathResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev);
+
 // data structs
 static gstate_t* currState;
 static gfield_t* currField;
@@ -82,6 +85,12 @@ int gs_IsPaused() {
 
 }
 
+int gs_IsHidden() {
+
+	return currState->isHidden;
+
+}
+
 /* * * PRIVATE FUNCS  * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 gstate_t* gs_NewState(gstate_e state) {
@@ -96,7 +105,16 @@ gstate_t* gs_NewState(gstate_e state) {
 			new->Responder = gs_GameResponder;
 			new->ticks     = 0.0;
 			new->isPaused  = false;
+			new->isHidden  = false;
 			break;
+
+		case DEATH:
+			new->state     = state;
+			new->Tick      = gs_DeathTick;
+			new->Responder = gs_DeathResponder;
+			new->ticks     = 0.0;
+			new->isPaused  = false;
+			new->isHidden  = false;
 
 		default:
 			break;
@@ -218,12 +236,41 @@ void gs_GameResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev) {
 			break;
 
 		case SNK_DEAD:
-			gstate->isPaused = true;
+			currState = gs_NewState(DEATH);
 			break;
 
 		default:
 			break;
 
 	}
+
+}
+
+void gs_DeathTick(gstate_t* gstate, gfield_t* gfield) {
+
+	gstate->ticks += (1.0 / GS_TICK_DEVISOR);
+
+	if (gstate->ticks >= 3.0) {
+		gstate->ticks = 0.0;
+
+		if (gstate->isHidden) {
+			gstate->isHidden = false;
+		} else {
+			gstate->isHidden = true;
+		}
+
+	}
+
+}
+
+void gs_DeathResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev) {
+
+	switch (ev->type) {
+
+		default:
+			break;
+
+	}
+
 
 }

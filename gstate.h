@@ -7,7 +7,8 @@
 
 typedef enum {
 
-	GAME
+	GAME,
+	DEATH
 
 } gstate_e;
 
@@ -25,6 +26,7 @@ typedef struct gstate {
 	void (*Responder)(struct gstate* gstate, gfield_t* gfield, event_t* ev);
 	double ticks;
 	int    isPaused;
+	int    isHidden;
 
 } gstate_t;
 
@@ -35,3 +37,4 @@ void         gs_Responder();
 snk_t const* gs_GetSnake();
 frt_t const* gs_GetFruit();
 int          gs_IsPaused();
+int          gs_IsHidden();
