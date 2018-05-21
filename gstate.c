@@ -6,21 +6,41 @@
 
 #define GS_TICK_DEVISOR 6
 
-static frt_t* gs_PlaceFruit(snk_t* snk);
-static void   gs_GameTick(gstate_t* gstate);
-static void   gs_GameResponder(gstate_t* gstate, event_t* ev);
+// create/free data structs
+static gstate_t* gs_NewState(gstate_e state);
+static void      gs_FreeState(gstate_t* gstate);
+static gfield_t* gs_NewField();
+static void      gs_FreeField(gfield_t* gfield);
 
+// helper funcs
+static frt_t*    gs_PlaceFruit(snk_t* snk);
+
+// state funcs
+static void      gs_GameTick(gstate_t* gstate, gfield_t* gfield);
+static void      gs_GameResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev);
+
+// data structs
 static gstate_t* currState;
+static gfield_t* currField;
+
+/* * * PUBLIC FUNCS * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void gs_Init() {
 
 	currState = gs_NewState(GAME);
+	currField = gs_NewField();
 
 }
 
 void gs_Cleanup() {
 
 	;
+
+}
+
+void gs_Tick() {
+
+	currState->Tick(currState, currField);
 
 }
 
@@ -40,9 +60,29 @@ void gs_Responder(event_t* ev) {
 
 	}
 
-	currState->Responder(ev);
+	currState->Responder(currState, currField, ev);
 
 }
+
+snk_t const* gs_GetSnake() {
+
+	return currField->snk;
+
+}
+
+frt_t const* gs_GetFruit() {
+
+	return currField->frt;
+
+}
+
+int gs_IsPaused() {
+
+	return currState->isPaused;
+
+}
+
+/* * * PRIVATE FUNCS  * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 gstate_t* gs_NewState(gstate_e state) {
 
@@ -54,8 +94,6 @@ gstate_t* gs_NewState(gstate_e state) {
 			new->state     = state;
 			new->Tick      = gs_GameTick;
 			new->Responder = gs_GameResponder;
-			new->snk       = snk_NewSnk();
-			new->frt       = gs_PlaceFruit(new->snk);
 			new->ticks     = 0.0;
 			new->isPaused  = false;
 			break;
@@ -69,87 +107,28 @@ gstate_t* gs_NewState(gstate_e state) {
 
 }
 
-void gs_Free(gstate_t* gstate) {
+void gs_FreeState(gstate_t* gstate) {
 
-	snk_Free(gstate->snk);
-	frt_Free(gstate->frt);
+	//snk_Free(gstate->snk);
+	//frt_Free(gstate->frt);
 	free(gstate);
 
 }
 
-void gs_GameTick(gstate_t* gstate) {
+gfield_t* gs_NewField() {
 
-	if (gstate->isPaused)
-		return;
+	gfield_t* new = malloc(sizeof(gfield_t));
 
-	gstate->ticks += (1.0 / GS_TICK_DEVISOR);
+	new->snk       = snk_NewSnk();
+	new->frt       = gs_PlaceFruit(new->snk);
 
-	if (gstate->ticks >= 1.0) {
-		gstate->ticks = 0.0;
-
-		snk_Tick(gstate->snk);
-		frt_Tick(gstate->frt);
-
-	}
-
-	// snek eat frt :3
-	if (snk_IsCollided(gstate->snk, &gstate->frt->pos)) {
-
-		frt_Free(gstate->frt);
-		gstate->frt = gs_PlaceFruit(gstate->snk);
-		snk_Grow(gstate->snk);
-
-	}
-
-	// snek bang wall >.<
-	if (gstate->snk->headPos.x < 1 || 
-		gstate->snk->headPos.x > WIN_X - 2 ||
-		gstate->snk->headPos.y < 1 ||
-		gstate->snk->headPos.y > WIN_Y - 2) {
-
-		ev_PushEvent(ev_NewEvent(SNK_DEAD));
-
-	}
-
-	// snek eat self :O
-	for (int j = 0; j < gstate->snk->length; ++j) {
-
-		if (IsEqual(&gstate->snk->headPos, &gstate->snk->body[j]))
-			ev_PushEvent(ev_NewEvent(SNK_DEAD));
-
-	}
+	return new;
 
 }
 
-void gs_GameResponder(gstate_t* gstate, event_t* ev) {
+void gs_FreeField(gfield_t* gfield) {
 
-	switch (ev->type) {
-
-		case SNK_MOVE_UP:
-			snk_Move(gstate->snk, UP);
-			break;
-
-		case SNK_MOVE_LEFT:
-			snk_Move(gstate->snk, LEFT);
-			break;
-
-		case SNK_MOVE_DOWN:
-			snk_Move(gstate->snk, DOWN);
-			break;
-
-		case SNK_MOVE_RIGHT:
-			snk_Move(gstate->snk, RIGHT);
-			break;
-
-		case SNK_INC_LEN:
-			snk_Grow(gstate->snk);
-			break;
-
-		case SNK_DEAD:
-			gstate->isPaused = true;
-			break;
-
-	}
+	free(gfield);
 
 }
 
@@ -169,20 +148,82 @@ frt_t* gs_PlaceFruit(snk_t* snk) {
 
 }
 
-snk_t const* gs_GetSnake() {
 
-	return currState->snk;
+void gs_GameTick(gstate_t* gstate, gfield_t* gfield) {
+
+	if (gstate->isPaused)
+		return;
+
+	gstate->ticks += (1.0 / GS_TICK_DEVISOR);
+
+	if (gstate->ticks >= 1.0) {
+		gstate->ticks = 0.0;
+
+		snk_Tick(gfield->snk);
+		frt_Tick(gfield->frt);
+
+	}
+
+	// snek eat frt :3
+	if (snk_IsCollided(gfield->snk, &gfield->frt->pos)) {
+
+		frt_Free(gfield->frt);
+		gfield->frt = gs_PlaceFruit(gfield->snk);
+		snk_Grow(gfield->snk);
+
+	}
+
+	// snek bang wall >.<
+	if (gfield->snk->headPos.x < 1 || 
+		gfield->snk->headPos.x > WIN_X - 2 ||
+		gfield->snk->headPos.y < 1 ||
+		gfield->snk->headPos.y > WIN_Y - 2) {
+
+		ev_PushEvent(ev_NewEvent(SNK_DEAD));
+
+	}
+
+	// snek eat self :O
+	for (int j = 0; j < gfield->snk->length; ++j) {
+
+		if (IsEqual(&gfield->snk->headPos, &gfield->snk->body[j]))
+			ev_PushEvent(ev_NewEvent(SNK_DEAD));
+
+	}
 
 }
 
-frt_t const* gs_GetFruit() {
+void gs_GameResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev) {
 
-	return currState->frt;
+	switch (ev->type) {
 
-}
+		case SNK_MOVE_UP:
+			snk_Move(gfield->snk, UP);
+			break;
 
-int gs_IsPaused() {
+		case SNK_MOVE_LEFT:
+			snk_Move(gfield->snk, LEFT);
+			break;
 
-	return currState->isPaused;
+		case SNK_MOVE_DOWN:
+			snk_Move(gfield->snk, DOWN);
+			break;
+
+		case SNK_MOVE_RIGHT:
+			snk_Move(gfield->snk, RIGHT);
+			break;
+
+		case SNK_INC_LEN:
+			snk_Grow(gfield->snk);
+			break;
+
+		case SNK_DEAD:
+			gstate->isPaused = true;
+			break;
+
+		default:
+			break;
+
+	}
 
 }

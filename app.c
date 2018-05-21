@@ -54,7 +54,7 @@ void app_Run() {
 
 			acc -= tickRate;
 
-			//gs_Tick();
+			gs_Tick();
 			r_Tick();
 
 

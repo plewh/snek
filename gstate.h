@@ -13,21 +13,25 @@ typedef enum {
 
 typedef struct {
 
-	gstate_e state;
-	void (*Tick)();
-	void (*Responder)();
 	snk_t* snk;
 	frt_t* frt;
+
+} gfield_t;
+
+typedef struct gstate {
+
+	gstate_e state;
+	void (*Tick)(struct gstate* gstate, gfield_t* gfield);
+	void (*Responder)(struct gstate* gstate, gfield_t* gfield, event_t* ev);
 	double ticks;
 	int    isPaused;
 
 } gstate_t;
 
-void      gs_Init();
-void      gs_Cleanup();
-void      gs_Responder();
-gstate_t* gs_NewState(gstate_e state);
-void      gs_Free(gstate_t* gstate);
+void         gs_Init();
+void         gs_Cleanup();
+void         gs_Tick();
+void         gs_Responder();
 snk_t const* gs_GetSnake();
 frt_t const* gs_GetFruit();
 int          gs_IsPaused();
