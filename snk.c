@@ -19,9 +19,11 @@ snk_t* snk_NewSnk() {
 
     }
 
-    snk->length = 0;
+	snk->bodyRune  = '0';
+	snk->headRune  = 'X';
+    snk->length    = 0;
     snk->actualDir = RIGHT;
-	snk->nextDir = RIGHT;
+	snk->nextDir   = RIGHT;
 
 	return snk;
 

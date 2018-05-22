@@ -18,9 +18,11 @@ static frt_t*    gs_PlaceFruit(snk_t* snk);
 // state funcs
 static void      gs_GameTick(gstate_t* gstate, gfield_t* gfield);
 static void      gs_GameResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev);
+static rend_t*   gs_GameGetRends(gstate_t* gstate, gfield_t* gfield);
 
 static void      gs_DeathTick(gstate_t* gstate, gfield_t* gfield);
 static void      gs_DeathResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev);
+static rend_t*   gs_DeathGetRends(gstate_t* gstate, gfield_t* gfield);
 
 // data structs
 static gstate_t* currState;
@@ -67,27 +69,9 @@ void gs_Responder(event_t* ev) {
 
 }
 
-snk_t const* gs_GetSnake() {
+rend_t* gs_GetRenderables() {
 
-	return currField->snk;
-
-}
-
-frt_t const* gs_GetFruit() {
-
-	return currField->frt;
-
-}
-
-int gs_IsPaused() {
-
-	return currState->isPaused;
-
-}
-
-int gs_IsHidden() {
-
-	return currState->isHidden;
+	return currState->GetRends(currState, currField);
 
 }
 
@@ -103,6 +87,7 @@ gstate_t* gs_NewState(gstate_e state) {
 			new->state     = state;
 			new->Tick      = gs_GameTick;
 			new->Responder = gs_GameResponder;
+			new->GetRends  = gs_GameGetRends;
 			new->ticks     = 0.0;
 			new->isPaused  = false;
 			new->isHidden  = false;
@@ -112,6 +97,7 @@ gstate_t* gs_NewState(gstate_e state) {
 			new->state     = state;
 			new->Tick      = gs_DeathTick;
 			new->Responder = gs_DeathResponder;
+			new->GetRends  = gs_DeathGetRends;
 			new->ticks     = 0.0;
 			new->isPaused  = false;
 			new->isHidden  = false;
@@ -246,6 +232,24 @@ void gs_GameResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev) {
 
 }
 
+rend_t* gs_GameGetRends(gstate_t* gstate, gfield_t* gfield) {
+
+	rend_t* rends = r_NewRends();
+
+	snk_t* snk = gfield->snk;
+	frt_t* frt = gfield->frt;
+
+	for (int j = 0; j < snk->length; ++j) {
+		r_PushRend(rends, RUNE, snk->bodyRune, NULL, snk->body[j]);
+	}
+
+	r_PushRend(rends, RUNE, snk->headRune, NULL, snk->headPos);
+	r_PushRend(rends, RUNE, frt->rune, NULL, frt->pos);
+
+	return rends;
+
+}
+
 void gs_DeathTick(gstate_t* gstate, gfield_t* gfield) {
 
 	gstate->ticks += (1.0 / GS_TICK_DEVISOR);
@@ -274,3 +278,15 @@ void gs_DeathResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev) {
 
 
 }
+
+rend_t* gs_DeathGetRends(gstate_t* gstate, gfield_t* gfield) {
+
+	rend_t* rends = r_NewRends();
+
+	coord_t p = {10, 11};
+	r_PushRend(rends, TEXT, ' ', "YOU FUCKIN DIED HEY", p);
+
+	return rends;
+
+}
+

@@ -1,5 +1,6 @@
 #include "render.h"
 #include <ncurses.h>
+#include <stdlib.h>
 #include "event.h"
 #include "gstate.h"
 #include "snk.h"
@@ -50,6 +51,39 @@ void r_Responder(event_t* ev) {
 
 void r_DoFrame() {
 
+	werase(win);
+	box(win, 0, 0);
+
+	rend_t* rendables = gs_GetRenderables();
+
+	for (int j = 0; j < rendables->length; ++j) {
+
+		switch (rendables->obj[j].type) {
+			
+			case RUNE:
+				mvwaddch(win, 
+						 rendables->obj[j].pos.y, 
+						 rendables->obj[j].pos.x, 
+						 rendables->obj[j].rune);
+				break;
+
+			case TEXT:
+				mvwprintw(win,
+						  rendables->obj[j].pos.y,
+						  rendables->obj[j].pos.x,
+						  rendables->obj[j].text);
+
+			default:
+				break;
+
+		}
+	}
+
+	wrefresh(win);
+
+	free(rendables);
+
+	/*
 	snk_t const* snk = gs_GetSnake();
 	frt_t const* frt = gs_GetFruit();
 
@@ -80,11 +114,37 @@ void r_DoFrame() {
 		mvwprintw(win, 0, 10, "PAUSE");
 
 	wrefresh(win);
+	*/
 
 }
 
 void r_Tick() {
 
 	;
+
+}
+
+rend_t* r_NewRends() {
+
+	rend_t* new = malloc(sizeof(rend_t));
+
+	new->length = 0;
+	
+	return new;
+
+}
+
+void r_PushRend(rend_t* rend, 
+                obj_type_e type, 
+ 		   		char rune, 
+				char* text, 
+				coord_t pos) {
+	
+	rend->obj[rend->length].type = type;
+	rend->obj[rend->length].rune = rune;
+	rend->obj[rend->length].text = text;
+	rend->obj[rend->length].pos  = pos;
+
+	++rend->length;
 
 }

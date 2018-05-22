@@ -16,6 +16,8 @@ typedef struct {
 
     coord_t headPos;
     coord_t body[SNK_MAX_LEN];
+	char    bodyRune;
+	char    headRune;
     int     length;
     dir_e   nextDir;
 	dir_e   actualDir;

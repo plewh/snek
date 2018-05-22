@@ -22,11 +22,12 @@ typedef struct {
 typedef struct gstate {
 
 	gstate_e state;
-	void (*Tick)(struct gstate* gstate, gfield_t* gfield);
-	void (*Responder)(struct gstate* gstate, gfield_t* gfield, event_t* ev);
-	double ticks;
-	int    isPaused;
-	int    isHidden;
+	void     (*Tick)(struct gstate* gstate, gfield_t* gfield);
+	void     (*Responder)(struct gstate* gstate, gfield_t* gfield, event_t* ev);
+	rend_t*  (*GetRends)(struct gstate* gstate, gfield_t* gfield);
+	double   ticks;
+	int      isPaused;
+	int      isHidden;
 
 } gstate_t;
 
@@ -34,7 +35,4 @@ void         gs_Init();
 void         gs_Cleanup();
 void         gs_Tick();
 void         gs_Responder();
-snk_t const* gs_GetSnake();
-frt_t const* gs_GetFruit();
-int          gs_IsPaused();
-int          gs_IsHidden();
+rend_t*      gs_GetRenderables();

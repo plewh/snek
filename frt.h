@@ -4,6 +4,7 @@
 typedef struct {
 
 	coord_t pos;
+	char    rune;
 
 } frt_t;
 
