@@ -23,39 +23,39 @@ void in_HandleInput() {
             switch (ch) {
                 
                 case 'q':
-					ev_PushEvent(ev_NewEvent(APP_QUIT));
+					ev_PushEvent(ev_NewEvent(KEY_PRESS, 'q'));
                     break;
 
                 case 'w':
-					ev_PushEvent(ev_NewEvent(SNK_MOVE_UP));
+					ev_PushEvent(ev_NewEvent(KEY_PRESS, 'w'));
                     break;
 
                 case 'a':
-					ev_PushEvent(ev_NewEvent(SNK_MOVE_LEFT));
+					ev_PushEvent(ev_NewEvent(KEY_PRESS, 'a'));
                     break;
 
                 case 's':
-					ev_PushEvent(ev_NewEvent(SNK_MOVE_DOWN));
+					ev_PushEvent(ev_NewEvent(KEY_PRESS, 's'));
                     break;
 
                 case 'd':
-					ev_PushEvent(ev_NewEvent(SNK_MOVE_RIGHT));
+					ev_PushEvent(ev_NewEvent(KEY_PRESS, 'd'));
                     break;
 
                 case ' ':
-					ev_PushEvent(ev_NewEvent(SNK_INC_LEN));
+					ev_PushEvent(ev_NewEvent(KEY_PRESS, ' '));
                     break;
 
                 case 'x':
-					ev_PushEvent(ev_NewEvent(APP_TICKRATE_DEC));
+					ev_PushEvent(ev_NewEvent(KEY_PRESS, 'x'));
                     break;
 
                 case 'c':
-					ev_PushEvent(ev_NewEvent(APP_TICKRATE_INC));
+					ev_PushEvent(ev_NewEvent(KEY_PRESS, 'c'));
                     break;
 
 				case 'p':
-					ev_PushEvent(ev_NewEvent(GS_PAUSE));
+					ev_PushEvent(ev_NewEvent(KEY_PRESS, 'p'));
 
                 default:
                     break;

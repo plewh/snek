@@ -24,6 +24,10 @@ static void      gs_DeathTick(gstate_t* gstate, gfield_t* gfield);
 static void      gs_DeathResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev);
 static rend_t*   gs_DeathGetRends(gstate_t* gstate, gfield_t* gfield);
 
+static void      gs_TitleTick(gstate_t* gstate, gfield_t* gfield);
+static void      gs_TitleResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev);
+static rend_t*   gs_TitleGetRends(gstate_t* gstate, gfield_t* gfield);
+
 // data structs
 static gstate_t* currState;
 static gfield_t* currField;
@@ -32,7 +36,7 @@ static gfield_t* currField;
 
 void gs_Init() {
 
-	currState = gs_NewState(GAME);
+	currState = gs_NewState(TITLE);
 	currField = gs_NewField();
 
 }
@@ -53,11 +57,14 @@ void gs_Responder(event_t* ev) {
 
 	switch (ev->type) {
 		
-		case GS_PAUSE:
-			if (currState->isPaused)
-				currState->isPaused = false;
-			else
-				currState->isPaused = true;
+		case KEY_PRESS:
+			if (ev->data == 'p') {
+				if (currState->isPaused)
+					currState->isPaused = false;
+				else
+					currState->isPaused = true;
+				break;
+			}
 			break;
 
 		default:
@@ -84,23 +91,40 @@ gstate_t* gs_NewState(gstate_e state) {
 	switch (state) {
 
 		case GAME:
-			new->state     = state;
-			new->Tick      = gs_GameTick;
-			new->Responder = gs_GameResponder;
-			new->GetRends  = gs_GameGetRends;
-			new->ticks     = 0.0;
-			new->isPaused  = false;
-			new->isHidden  = false;
+			new->state            = state;
+			new->Tick             = gs_GameTick;
+			new->Responder        = gs_GameResponder;
+			new->GetRends         = gs_GameGetRends;
+			new->ticks            = 0.0;
+			new->isPaused         = false;
+			new->isHidden         = false;
+			new->isInputLocked    = false;
+			new->inputLockTimeout = 5.0;
 			break;
 
 		case DEATH:
-			new->state     = state;
-			new->Tick      = gs_DeathTick;
-			new->Responder = gs_DeathResponder;
-			new->GetRends  = gs_DeathGetRends;
-			new->ticks     = 0.0;
-			new->isPaused  = false;
-			new->isHidden  = false;
+			new->state            = state;
+			new->Tick             = gs_DeathTick;
+			new->Responder        = gs_DeathResponder;
+			new->GetRends         = gs_DeathGetRends;
+			new->ticks            = 0.0;
+			new->isPaused         = false;
+			new->isHidden         = false;
+			new->isInputLocked    = true;
+			new->inputLockTimeout = 5.0;
+			break;
+
+		case TITLE:
+			new->state            = state;
+			new->Tick             = gs_TitleTick;
+			new->Responder        = gs_TitleResponder;
+			new->GetRends         = gs_TitleGetRends;
+			new->ticks            = 0.0;
+			new->isPaused         = false;
+			new->isHidden         = false;
+			new->isInputLocked    = false;
+			new->inputLockTimeout = 5.0;
+			break;
 
 		default:
 			break;
@@ -158,7 +182,7 @@ void gs_GameTick(gstate_t* gstate, gfield_t* gfield) {
 	if (gstate->isPaused)
 		return;
 
-	gstate->ticks += (1.0 / GS_TICK_DEVISOR);
+	gstate->ticks += (1.5 / GS_TICK_DEVISOR);
 
 	if (gstate->ticks >= 1.0) {
 		gstate->ticks = 0.0;
@@ -183,7 +207,7 @@ void gs_GameTick(gstate_t* gstate, gfield_t* gfield) {
 		gfield->snk->headPos.y < 1 ||
 		gfield->snk->headPos.y > WIN_Y - 2) {
 
-		ev_PushEvent(ev_NewEvent(SNK_DEAD));
+		ev_PushEvent(ev_NewEvent(SNK_DEAD, ' '));
 
 	}
 
@@ -191,7 +215,7 @@ void gs_GameTick(gstate_t* gstate, gfield_t* gfield) {
 	for (int j = 0; j < gfield->snk->length; ++j) {
 
 		if (IsEqual(&gfield->snk->headPos, &gfield->snk->body[j]))
-			ev_PushEvent(ev_NewEvent(SNK_DEAD));
+			ev_PushEvent(ev_NewEvent(SNK_DEAD, ' '));
 
 	}
 
@@ -201,24 +225,34 @@ void gs_GameResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev) {
 
 	switch (ev->type) {
 
-		case SNK_MOVE_UP:
-			snk_Move(gfield->snk, UP);
-			break;
+		case KEY_PRESS:
 
-		case SNK_MOVE_LEFT:
-			snk_Move(gfield->snk, LEFT);
-			break;
+			switch (ev->data) {
 
-		case SNK_MOVE_DOWN:
-			snk_Move(gfield->snk, DOWN);
-			break;
+				case 'w':
+					snk_Move(gfield->snk, UP);
+					break;
 
-		case SNK_MOVE_RIGHT:
-			snk_Move(gfield->snk, RIGHT);
-			break;
+				case 'a':
+					snk_Move(gfield->snk, LEFT);
+					break;
 
-		case SNK_INC_LEN:
-			snk_Grow(gfield->snk);
+				case 's':
+					snk_Move(gfield->snk, DOWN);
+					break;
+
+				case 'd':
+					snk_Move(gfield->snk, RIGHT);
+					break;
+
+				case ' ':
+					snk_Grow(gfield->snk);
+					break;
+
+				default:
+					break;
+
+			}
 			break;
 
 		case SNK_DEAD:
@@ -257,6 +291,12 @@ void gs_DeathTick(gstate_t* gstate, gfield_t* gfield) {
 	if (gstate->ticks >= 3.0) {
 		gstate->ticks = 0.0;
 
+		if ((gstate->inputLockTimeout -= 1.0) <= 0.0) {
+			
+			gstate->isInputLocked = false;
+
+		}
+
 		if (gstate->isHidden) {
 			gstate->isHidden = false;
 		} else {
@@ -269,13 +309,19 @@ void gs_DeathTick(gstate_t* gstate, gfield_t* gfield) {
 
 void gs_DeathResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev) {
 
+	if (gstate->isInputLocked)
+		return;
+
 	switch (ev->type) {
+
+		case KEY_PRESS:
+			ev_PushEvent(ev_NewEvent(APP_QUIT, '~'));
+			break;
 
 		default:
 			break;
 
 	}
-
 
 }
 
@@ -283,10 +329,75 @@ rend_t* gs_DeathGetRends(gstate_t* gstate, gfield_t* gfield) {
 
 	rend_t* rends = r_NewRends();
 
-	coord_t p = {10, 11};
-	r_PushRend(rends, TEXT, ' ', "YOU FUCKIN DIED HEY", p);
+	if (!gstate->isHidden) {
+
+		snk_t* snk = gfield->snk;
+		frt_t* frt = gfield->frt;
+
+		for (int j = 0; j < snk->length; ++j) {
+			r_PushRend(rends, RUNE, snk->bodyRune, NULL, snk->body[j]);
+		}
+
+		r_PushRend(rends, RUNE, snk->headRune, NULL, snk->headPos);
+		r_PushRend(rends, RUNE, frt->rune, NULL, frt->pos);
+	
+	}
+
+	coord_t p = {(WIN_X - 38) / 2, (WIN_Y - 6) / 2};
+	r_PushRend(rends, TEXT, ' ', "__   __           ______ _          _", p);
+	++p.y;
+	r_PushRend(rends, TEXT, ' ', "\\ \\ / /           |  _  (_)        | |", p);
+	++p.y;
+	r_PushRend(rends, TEXT, ' ', " \\ V /___  _   _  | | | |_  ___  __| |", p);
+	++p.y;
+	r_PushRend(rends, TEXT, ' ', "  \\ // _ \\| | | | | | | | |/ _ \\/ _` |", p);
+	++p.y;
+	r_PushRend(rends, TEXT, ' ', "  | | (_) | |_| | | |/ /| |  __/ (_| |", p);
+	++p.y;
+	r_PushRend(rends, TEXT, ' ', "  \\_/\\___/ \\__,_| |___/ |_|\\___|\\__,_|", p);
 
 	return rends;
 
 }
+			                                         
+void gs_TitleTick(gstate_t* gstate, gfield_t* gfield) {
 
+	gstate->ticks += (1.0 / GS_TICK_DEVISOR);
+
+}
+
+void gs_TitleResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev) {
+
+	switch (ev->type) {
+
+		case KEY_PRESS:
+			currState = gs_NewState(GAME);
+			break;
+
+		default:
+			break;
+
+	}
+
+}
+
+rend_t* gs_TitleGetRends(gstate_t* gstate, gfield_t* gfield) {
+
+	rend_t* rends = r_NewRends();
+
+	coord_t p = {(WIN_X - 38) / 2, (WIN_Y - 6) / 2};
+	r_PushRend(rends, TEXT, ' ', "      _____            _    ", p);
+	++p.y;
+	r_PushRend(rends, TEXT, ' ', "     /  ___|          | |   ", p);
+	++p.y;
+	r_PushRend(rends, TEXT, ' ', "	  \\ `--. _ __   ___| | __", p);
+	++p.y;
+	r_PushRend(rends, TEXT, ' ', "	   `--. \\ '_ \\ / _ \\ |/ /", p);
+	++p.y;
+	r_PushRend(rends, TEXT, ' ', "	  /\\__/ / | | |  __/   < ", p);
+	++p.y;
+	r_PushRend(rends, TEXT, ' ', "	  \\____/|_| |_|\\___|_|\\_\\", p);
+
+	return rends;
+
+}

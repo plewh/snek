@@ -8,7 +8,8 @@
 typedef enum {
 
 	GAME,
-	DEATH
+	DEATH,
+	TITLE
 
 } gstate_e;
 
@@ -28,6 +29,8 @@ typedef struct gstate {
 	double   ticks;
 	int      isPaused;
 	int      isHidden;
+	int      isInputLocked;
+	double   inputLockTimeout;
 
 } gstate_t;
 

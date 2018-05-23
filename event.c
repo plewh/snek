@@ -62,11 +62,12 @@ void ev_PumpEvents() {
 
 }
 
-event_t* ev_NewEvent(eventType_e type) {
+event_t* ev_NewEvent(eventType_e type, char data) {
 
 	event_t* ev = malloc(sizeof(type));
 
 	ev->type = type;
+	ev->data = data;
 
 	return ev;
 

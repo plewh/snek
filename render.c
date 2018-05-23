@@ -25,7 +25,7 @@ void r_Init() {
 
         fprintf(stderr, "Term size is %d:%d chars, require %d:%d or larger", 
 		        winX, winY, WIN_X, WIN_Y);
-        ev_PushEvent(ev_NewEvent(APP_QUIT));
+        ev_PushEvent(ev_NewEvent(APP_QUIT, ' '));
 
     }
 

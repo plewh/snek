@@ -88,16 +88,25 @@ void app_Responder(event_t* ev) {
 			running = false;
 			break;
 
-		case APP_TICKRATE_INC:
-			tickRate += 0.5;
-			break;
+		case KEY_PRESS:
+			switch (ev->data) {
 
-		case APP_TICKRATE_DEC:
-			tickRate -= 0.5;
-			break;
+				case 'q':
+					running = false;
+					break;
 
-		case APP_TICK:
-			fprintf(stderr, "Tick...\n");
+				case 'x':
+					tickRate += 0.5;
+					break;
+
+				case 'c':
+					tickRate -= 0.5;
+					break;
+
+				default:
+					break;
+
+			}
 
 		default:
 			break;
