@@ -137,8 +137,6 @@ gstate_t* gs_NewState(gstate_e state) {
 
 void gs_FreeState(gstate_t* gstate) {
 
-	//snk_Free(gstate->snk);
-	//frt_Free(gstate->frt);
 	free(gstate);
 
 }
@@ -256,6 +254,7 @@ void gs_GameResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev) {
 			break;
 
 		case SNK_DEAD:
+			gs_FreeState(currState);
 			currState = gs_NewState(DEATH);
 			break;
 
@@ -279,6 +278,12 @@ rend_t* gs_GameGetRends(gstate_t* gstate, gfield_t* gfield) {
 
 	r_PushRend(rends, RUNE, snk->headRune, NULL, snk->headPos);
 	r_PushRend(rends, RUNE, frt->rune, NULL, frt->pos);
+
+	// hud
+	char* buff = " ";
+	//sprintf(buff, "Length: %d", gfield->snk->length);
+	//coord_t p = {0, 0};
+	//r_PushRend(rends, TEXT, '~', buff, p);
 
 	return rends;
 
@@ -315,7 +320,10 @@ void gs_DeathResponder(gstate_t* gstate, gfield_t* gfield, event_t* ev) {
 	switch (ev->type) {
 
 		case KEY_PRESS:
-			ev_PushEvent(ev_NewEvent(APP_QUIT, '~'));
+			gs_FreeState(currState);
+			gs_FreeField(currField);
+			currState = gs_NewState(TITLE);
+			currField = gs_NewField();
 			break;
 
 		default:
